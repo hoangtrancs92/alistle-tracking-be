@@ -29,6 +29,11 @@ public class UserAppServiceImpl implements UserAppService {
 
     @Override
     public UserResponse createUser(CreateUserRequest request) {
+        // Validate password confirmation
+        if (!request.isPasswordMatching()) {
+            throw new IllegalArgumentException("Password and confirm password do not match");
+        }
+
         UserEmail email = userMapper.toUserEmail(request.getEmail());
         UserPassword password = userMapper.toUserPassword(request.getPassword());
 
