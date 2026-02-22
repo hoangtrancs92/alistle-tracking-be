@@ -1,0 +1,22 @@
+version: "3.8"
+services:
+  mysql:
+    image: mysql
+    container_name: pre-event-mysql
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: alistle
+    restart: always
+    volumes:
+      - mysql_data:/var/lib/mysql
+    ports:
+      - "3306:3306"
+  identity-service:
+    build: ./identify-service
+    container_name: identity-service
+    environment:
+      SPRING_PROFILES_ACTIVE: dev
+    ports:
+      - "8000:8000"
+    depends_on:
+      - mysql

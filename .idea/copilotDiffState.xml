@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project version="4">
+  <component name="CopilotDiffPersistence">
+    <option name="pendingDiffs">
+      <map>
+        <entry key="$PROJECT_DIR$/user-service/src/main/java/alistle/com/userservice/domain/model/User.java">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/user-service/src/main/java/alistle/com/userservice/domain/model/User.java" />
+              <option name="originalContent" value="package alistle.com.userservice.domain.model;&#10;&#10;import lombok.AllArgsConstructor;&#10;&#10;@AllArgsConstructor&#10;public class User {&#10;    private UserEmail email;&#10;    private UserPassword password;&#10;}&#10;" />
+              <option name="updatedContent" value="package alistle.com.userservice.domain.model;&#10;&#10;import lombok.AllArgsConstructor;&#10;import lombok.Getter;&#10;&#10;import java.util.UUID;&#10;&#10;@AllArgsConstructor&#10;@Getter&#10;public class User {&#10;    private final UUID id;&#10;    private final UserEmail email;&#10;    private final UserPassword password;&#10;&#10;    public static User create(UserEmail email, UserPassword password) {&#10;        return new User(UUID.randomUUID(), email, password);&#10;    }&#10;&#10;    public static User fromExisting(UUID id, UserEmail email, UserPassword password) {&#10;        return new User(id, email, password);&#10;    }&#10;}" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/user-service/src/main/java/alistle/com/userservice/domain/repository/UserDomainRepository.java">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/user-service/src/main/java/alistle/com/userservice/domain/repository/UserDomainRepository.java" />
+              <option name="originalContent" value="package alistle.com.userservice.domain.repository;&#10;&#10;import alistle.com.userservice.infrastructure.persistence.entity.UserEntity;&#10;&#10;public interface UserDomainRepository {&#10;    String test();&#10;    UserEntity insertUser(UserEntity userEntity);&#10;}&#10;" />
+              <option name="updatedContent" value="package alistle.com.userservice.domain.repository;&#10;&#10;import alistle.com.userservice.domain.model.User;&#10;import alistle.com.userservice.domain.model.UserEmail;&#10;&#10;import java.util.Optional;&#10;import java.util.UUID;&#10;&#10;public interface UserDomainRepository {&#10;    String test();&#10;    User save(User user);&#10;    Optional&lt;User&gt; findById(UUID id);&#10;    Optional&lt;User&gt; findByEmail(UserEmail email);&#10;    boolean existsByEmail(UserEmail email);&#10;}" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/user-service/src/main/java/alistle/com/userservice/domain/service/UserDomainService.java">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/user-service/src/main/java/alistle/com/userservice/domain/service/UserDomainService.java" />
+              <option name="originalContent" value="package alistle.com.userservice.domain.service;&#10;&#10;public interface UserDomainService {&#10;    public String test();&#10;}&#10;" />
+              <option name="updatedContent" value="package alistle.com.userservice.domain.service;&#10;&#10;import alistle.com.userservice.domain.model.User;&#10;import alistle.com.userservice.domain.model.UserEmail;&#10;import alistle.com.userservice.domain.model.UserPassword;&#10;&#10;public interface UserDomainService {&#10;    String test();&#10;    User createUser(UserEmail email, UserPassword password);&#10;    User findUserById(java.util.UUID id);&#10;    User findUserByEmail(UserEmail email);&#10;}" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/user-service/src/main/java/alistle/com/userservice/domain/service/impl/UserDomainServiceImpl.java">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/user-service/src/main/java/alistle/com/userservice/domain/service/impl/UserDomainServiceImpl.java" />
+              <option name="originalContent" value="package alistle.com.userservice.domain.service.impl;&#10;&#10;import alistle.com.userservice.domain.repository.UserDomainRepository;&#10;import alistle.com.userservice.domain.service.UserDomainService;&#10;import org.springframework.beans.factory.annotation.Autowired;&#10;import org.springframework.stereotype.Service;&#10;&#10;@Service&#10;public class UserDomainServiceImpl implements UserDomainService {&#10;    @Autowired&#10;    private UserDomainRepository userDomainRepository;&#10;&#10;    @Override&#10;    public String test() {&#10;        return userDomainRepository.test();&#10;    }&#10;}&#10;" />
+              <option name="updatedContent" value="package alistle.com.userservice.domain.service.impl;&#10;&#10;import alistle.com.userservice.domain.model.User;&#10;import alistle.com.userservice.domain.model.UserEmail;&#10;import alistle.com.userservice.domain.model.UserPassword;&#10;import alistle.com.userservice.domain.repository.UserDomainRepository;&#10;import alistle.com.userservice.domain.service.UserDomainService;&#10;import org.springframework.beans.factory.annotation.Autowired;&#10;import org.springframework.stereotype.Service;&#10;&#10;import java.util.UUID;&#10;&#10;@Service&#10;public class UserDomainServiceImpl implements UserDomainService {&#10;    @Autowired&#10;    private UserDomainRepository userDomainRepository;&#10;&#10;    @Override&#10;    public String test() {&#10;        return userDomainRepository.test();&#10;    }&#10;&#10;    @Override&#10;    public User createUser(UserEmail email, UserPassword password) {&#10;        // Business rule: Check if user with email already exists&#10;        if (userDomainRepository.existsByEmail(email)) {&#10;            throw new IllegalArgumentException(&quot;User with this email already exists&quot;);&#10;        }&#10;&#10;        // Create new user&#10;        User newUser = User.create(email, password);&#10;        return userDomainRepository.save(newUser);&#10;    }&#10;&#10;    @Override&#10;    public User findUserById(UUID id) {&#10;        return userDomainRepository.findById(id)&#10;                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;User not found with id: &quot; + id));&#10;    }&#10;&#10;    @Override&#10;    public User findUserByEmail(UserEmail email) {&#10;        return userDomainRepository.findByEmail(email)&#10;                .orElseThrow(() -&gt; new IllegalArgumentException(&quot;User not found with email: &quot; + email.value()));&#10;    }&#10;}" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+        <entry key="$PROJECT_DIR$/user-service/src/main/resources/application.yaml">
+          <value>
+            <PendingDiffInfo>
+              <option name="filePath" value="$PROJECT_DIR$/user-service/src/main/resources/application.yaml" />
+              <option name="originalContent" value="spring:&#10;  application:&#10;    name: identify-service&#10;  datasource:&#10;    url: &quot;jdbc:mysql://localhost:3306/alistle?createDatabaseIfNotExist=true&quot;&#10;    username: root&#10;    password: 123456789&#10;    driver-class-name: com.mysql.cj.jdbc.Driver&#10;  jpa:&#10;    database: mysql&#10;    show-sql: true&#10;    hibernate:&#10;      ddl-auto: validate&#10;    properties:&#10;      hibernate:&#10;        format_sql: true&#10;        use_sql_comments: true&#10;server:&#10;    port: 8000" />
+              <option name="updatedContent" value="spring:&#10;  application:&#10;    name: user-service&#10;  datasource:&#10;    url: &quot;jdbc:mysql://localhost:3306/alistle?createDatabaseIfNotExist=true&quot;&#10;    username: root&#10;    password: 123456789&#10;    driver-class-name: com.mysql.cj.jdbc.Driver&#10;  jpa:&#10;    database: mysql&#10;    show-sql: true&#10;    hibernate:&#10;      ddl-auto: update&#10;    properties:&#10;      hibernate:&#10;        format_sql: true&#10;        use_sql_comments: true&#10;        dialect: org.hibernate.dialect.MySQLDialect&#10;server:&#10;    port: 8000" />
+            </PendingDiffInfo>
+          </value>
+        </entry>
+      </map>
+    </option>
+  </component>
+</project>
