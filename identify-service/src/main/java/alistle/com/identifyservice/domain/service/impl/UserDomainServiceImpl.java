@@ -1,39 +1,29 @@
 package alistle.com.identifyservice.domain.service.impl;
 
 import alistle.com.identifyservice.domain.model.User;
-import alistle.com.identifyservice.domain.model.UserEmail;
-import alistle.com.identifyservice.domain.model.UserPassword;
 import alistle.com.identifyservice.domain.repository.UserDomainRepository;
 import alistle.com.identifyservice.domain.service.UserDomainService;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.AllArgsConstructor;
+import lombok.experimental.FieldDefaults;
+import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
 
 @Service
+@AllArgsConstructor
+@FieldDefaults(level = lombok.AccessLevel.PRIVATE, makeFinal = true)
 public class UserDomainServiceImpl implements UserDomainService {
-    @Autowired
-    private UserDomainRepository userDomainRepository;
+    UserDomainRepository userDomainRepository;
 
     @Override
-    public User createUser(UserEmail email, UserPassword password) {
-        // Business rule: Check if user with email already exists
-        if (userDomainRepository.existsByEmail(email)) {
-            throw new IllegalArgumentException("User with this email already exists");
-        }
-
+    public User createUser(User user) {
         // Create new user
-        User newUser = User.create(email, password);
+        User newUser = User.create(user.getEmail(), user.getPassword());
         return userDomainRepository.save(newUser);
     }
 
     @Override
-    public User findUserById(Long id) {
-        return userDomainRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with id: " + id));
-    }
-
-    @Override
-    public User findUserByEmail(UserEmail email) {
+    public User findUserByEmail(String email) {
         return userDomainRepository.findByEmail(email)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with email: " + email.value()));
+                .orElseThrow(() -> new RuntimeException("User not found"));
     }
 }

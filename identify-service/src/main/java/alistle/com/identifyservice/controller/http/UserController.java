@@ -1,21 +1,28 @@
 package alistle.com.identifyservice.controller.http;
 
 import alistle.com.identifyservice.application.dto.request.CreateUserRequest;
+import alistle.com.identifyservice.application.dto.request.LoginRequest;
+import alistle.com.identifyservice.application.dto.response.AuthenticationResponse;
 import alistle.com.identifyservice.application.dto.response.UserResponse;
 import alistle.com.identifyservice.application.service.UserAppService;
+import lombok.AccessLevel;
+import lombok.AllArgsConstructor;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
+import com.devteria.identity.dto.request.ApiResponse;
 
 @RestController
 @RequestMapping("/api/v1/users")
 @Slf4j
+@AllArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class UserController {
-    @Autowired
-    private UserAppService userAppService;
+    UserAppService userAppService;
 
     @PostMapping
     public ResponseEntity<UserResponse> createUser(@Valid @RequestBody CreateUserRequest request) {
@@ -28,23 +35,19 @@ public class UserController {
         }
     }
 
-    @GetMapping("/{id}")
-    public ResponseEntity<UserResponse> getUserById(@PathVariable Long id) {
+    @GetMapping("/by-email")
+    public ApiResponse<UserResponse> getUserByEmail(@RequestParam String email) {
         try {
-            UserResponse response = userAppService.getUserById(id);
-            return ResponseEntity.ok(response);
+            return ApiResponse.<UserResponse>builder().
+                    result(userAppService.getUserByEmail(email)).build();
         } catch (IllegalArgumentException e) {
-            return ResponseEntity.notFound().build();
+            log.error("Error fetching user: {}", e.getMessage());
+            return null; // In a real application, you might want to return a proper error response here
         }
     }
 
-    @GetMapping("/email/{email}")
-    public ResponseEntity<UserResponse> getUserByEmail(@PathVariable String email) {
-        try {
-            UserResponse response = userAppService.getUserByEmail(email);
-            return ResponseEntity.ok(response);
-        } catch (IllegalArgumentException e) {
-            return ResponseEntity.notFound().build();
-        }
+    @PostMapping("/login")
+    public ApiResponse<AuthenticationResponse> login(@RequestBody LoginRequest request) {
+        return ApiResponse.<AuthenticationResponse>builder().result(userAppService.login(request)).build();
     }
 }
