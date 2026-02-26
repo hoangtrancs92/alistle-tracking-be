@@ -1,20 +1,23 @@
 package alistle.com.identifyservice.controller.http;
 
 import alistle.com.identifyservice.application.dto.request.CreateUserRequest;
+import alistle.com.identifyservice.application.dto.request.IntrospectRequest;
 import alistle.com.identifyservice.application.dto.request.LoginRequest;
-import alistle.com.identifyservice.application.dto.response.AuthenticationResponse;
-import alistle.com.identifyservice.application.dto.response.UserResponse;
+import alistle.com.identifyservice.application.dto.request.RefreshRequest;
+import alistle.com.identifyservice.application.dto.response.*;
 import alistle.com.identifyservice.application.service.UserAppService;
+import com.nimbusds.jose.JOSEException;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import jakarta.validation.Valid;
-import com.devteria.identity.dto.request.ApiResponse;
+
+import java.text.ParseException;
+
 
 @RestController
 @RequestMapping("/api/v1/users")
@@ -49,5 +52,15 @@ public class UserController {
     @PostMapping("/login")
     public ApiResponse<AuthenticationResponse> login(@RequestBody LoginRequest request) {
         return ApiResponse.<AuthenticationResponse>builder().result(userAppService.login(request)).build();
+    }
+
+    @PostMapping("/introspect")
+    public ApiResponse<IntrospectResponse> introspect(@RequestBody IntrospectRequest request) {
+        return ApiResponse.<IntrospectResponse>builder().result(userAppService.introspect(request)).build();
+    }
+
+    @PostMapping("/refresh")
+    public  ApiResponse<RefreshResponse> refresh(@RequestBody RefreshRequest refreshRequest) throws ParseException, JOSEException {
+        return ApiResponse.<RefreshResponse>builder().result(userAppService.refreshToken(refreshRequest)).build();
     }
 }
