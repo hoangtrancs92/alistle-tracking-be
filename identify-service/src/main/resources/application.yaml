@@ -4,7 +4,7 @@ spring:
   datasource:
     url: "jdbc:mysql://localhost:3306/alistle?createDatabaseIfNotExist=true"
     username: root
-    password: 123456789
+    password:
     driver-class-name: com.mysql.cj.jdbc.Driver
   jpa:
     database: mysql
@@ -19,5 +19,7 @@ spring:
   jwt:
     secret: 6SObD0L2fqV5SAakjU4Nst4JCfQ3N8Z8Wkugni1zPvN
     expiration: 3600000
+    refreshable-duration: 7200000
+
 server:
     port: 8000

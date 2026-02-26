@@ -1,8 +1,12 @@
 package alistle.com.identifyservice.application.service.impl;
 
 import alistle.com.identifyservice.application.dto.request.CreateUserRequest;
+import alistle.com.identifyservice.application.dto.request.IntrospectRequest;
 import alistle.com.identifyservice.application.dto.request.LoginRequest;
+import alistle.com.identifyservice.application.dto.request.RefreshRequest;
 import alistle.com.identifyservice.application.dto.response.AuthenticationResponse;
+import alistle.com.identifyservice.application.dto.response.IntrospectResponse;
+import alistle.com.identifyservice.application.dto.response.RefreshResponse;
 import alistle.com.identifyservice.application.dto.response.UserResponse;
 import alistle.com.identifyservice.application.exception.AppException;
 import alistle.com.identifyservice.application.exception.ErrorCode;
@@ -11,6 +15,7 @@ import alistle.com.identifyservice.application.service.UserAppService;
 import alistle.com.identifyservice.domain.model.User;
 import alistle.com.identifyservice.domain.service.UserDomainService;
 import alistle.com.identifyservice.infrastructure.security.JwtUtil;
+import com.nimbusds.jose.JOSEException;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.experimental.FieldDefaults;
@@ -18,6 +23,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+
+import java.text.ParseException;
 
 @Service
 @AllArgsConstructor
@@ -65,5 +72,22 @@ public class UserAppServiceImpl implements UserAppService {
 
         String token = jwtUtil.generateToken(request.getEmail());
         return new AuthenticationResponse(token, userMapper.toResponse(user));
+    }
+
+    @Override
+    public IntrospectResponse introspect(IntrospectRequest request) {
+        String token = request.getToken();
+        return new IntrospectResponse(jwtUtil.validateToken(token));
+    }
+
+    @Override
+    public RefreshResponse refreshToken(RefreshRequest refreshToken) throws ParseException, JOSEException {
+        String token = refreshToken.getToken();
+        if (!jwtUtil.validateToken(token)) {
+            throw new AppException(ErrorCode.INVALID_TOKEN);
+        }
+
+        String newToken = jwtUtil.refreshToken(token);
+        return new RefreshResponse(newToken);
     }
 }
